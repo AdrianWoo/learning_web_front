@@ -1,0 +1,19 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "10.20.30.100",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "cangchu",
+            "group": "cangchu",
+            "username": "root",
+            "database": "shwebautocangchu",
+            "password": ""
+        }
+    ]
+}
