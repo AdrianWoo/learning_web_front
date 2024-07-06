@@ -6,7 +6,7 @@ const ctx = canvas.getContext('2d');
 const width = canvas.width = window.innerWidth;
 const height = canvas.height = window.innerHeight;
 let p = document.querySelector('p');
-let score  = 0;
+let score = 0;
 
 
 // 生成随机数的函数
@@ -40,19 +40,55 @@ class Shape {
 
 
 class Ball extends Shape {
-  color;
-  size;
   constructor(x, y, velX, velY, color, size) {
     super(x, y, velX, velY);
     this.color = color;
     this.size = size;
     this.exists = true;
   }
+  draw() {
+    ctx.beginPath();
+    ctx.fillStyle = this.color;
+    ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
+    ctx.fill();
+  }
 
+  update() {
+    if (this.x + this.size >= width) {
+      this.velX = -this.velX;
+    }
+    if (this.x - this.size <= 0) {
+      this.velX = -this.velX;
+    }
+    if (this.y + this.size >= height) {
+      this.velY = -this.velY;
+    }
+    if (this.y + this.size <= 0) {
+      this.velY = -this.velY;
+    }
+    this.x += this.velX;
+    this.y += this.velY;
+
+  }
+
+  collisionDetect() {
+    for (let j = 0; j < balls.length; j++) {
+      if (this !== balls[j] && balls[j].exists) {
+        const dx = this.x - balls[j].x;
+        const dy = this.y - balls[j].y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < this.size + balls[j].size) {
+          balls[j].color = this.color = randomColor();
+        }
+      }
+    };
+  }
 }
+
 class EvilCircle extends Shape {
   constructor(x, y) {
-    super(x,y,20,20,true);
+    super(x, y, 20, 20, true);
     this.color = "white";
     this.size = 30;
 
@@ -72,36 +108,31 @@ class EvilCircle extends Shape {
           break;
       }
     };
-
   }
 
-   draw () {
+  draw() {
     ctx.beginPath();
     ctx.lineWidth = 3;
     ctx.strokeStyle = this.color;
     ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
     ctx.stroke();
   }
-  checkBounds(){
-    if (this.x + this.size >= width) {
-      this.x = -this.size;
+
+  checkBounds() {
+    if ((this.x + this.size) >= width) {
+      this.x -= this.size;
     }
     if (this.x - this.size <= 0) {
-      this.x = -this.size;
+      this.x += this.size;
     }
     if (this.y + this.size >= height) {
-      this.y = -this.size;
+      this.y -= this.size;
     }
     if (this.y + this.size <= 0) {
-      this.y = -this.size;
+      this.y += this.size;
     }
   }
-
-  setControls() {
- 
-  }
-
-  collisionDetect(){
+  collisionDetect() {
     for (let j = 0; j < balls.length; j++) {
       if (balls[j].exists) {
         const dx = this.x - balls[j].x;
@@ -110,54 +141,12 @@ class EvilCircle extends Shape {
 
         if (distance < this.size + balls[j].size) {
           balls[j].exists = false;
-          score --;
+          score--;
         }
       }
-       
     };
-
   }
 }
-
-Ball.prototype.draw = function () {
-  ctx.beginPath();
-  ctx.fillStyle = this.color;
-  ctx.arc(this.x, this.y, this.size, 0, 2 * Math.PI);
-  ctx.fill();
-}
-
-Ball.prototype.update = function () {
-  if (this.x + this.size >= width) {
-    this.velX = -this.velX;
-  }
-  if (this.x - this.size <= 0) {
-    this.velX = -this.velX;
-  }
-  if (this.y + this.size >= height) {
-    this.velY = -this.velY;
-  }
-  if (this.y + this.size <= 0) {
-    this.velY = -this.velY;
-  }
-  this.x += this.velX;
-  this.y += this.velY;
-
-}
-
-Ball.prototype.collisionDetect = function () {
-  for (let j = 0; j < balls.length; j++) {
-    if (this !== balls[j] && balls[j].exists) {
-      const dx = this.x - balls[j].x;
-      const dy = this.y - balls[j].y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (distance < this.size + balls[j].size) {
-        balls[j].color = this.color = randomColor();
-      }
-    }
-  };
-}
-
 
 
 let balls = [];
@@ -173,15 +162,15 @@ while (balls.length < 25) {
     size,
   );
   balls.push(ball);
-  score ++;
+  score++;
 }
-let evilCircle = new EvilCircle(300,400);
+let evilCircle = new EvilCircle(300, 400);
 function loop() {
   ctx.fillStyle = "rgba(0,0,0,0.25)";
   ctx.fillRect(0, 0, width, height);
-  
+
   for (let i = 0; i < balls.length; i++) {
-    if(balls[i].exists){
+    if (balls[i].exists) {
       balls[i].draw();
       balls[i].update();
       balls[i].collisionDetect();
@@ -190,7 +179,6 @@ function loop() {
     evilCircle.checkBounds();
     evilCircle.collisionDetect();
   }
-
   requestAnimationFrame(loop);
   p.innerText = score;
 }
